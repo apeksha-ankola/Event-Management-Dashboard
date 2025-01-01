@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 
-const AttendeeList = ({ attendees }) => {
+const AttendeeList = ({  attendees, onDelete }) => {
   return (
     <>
       {attendees.map((attendee, index) => (

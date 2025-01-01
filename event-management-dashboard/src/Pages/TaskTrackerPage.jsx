@@ -1,32 +1,40 @@
-import React, { useState } from 'react';
-import { Button, Grid, Checkbox, Typography } from '@mui/material';
-import { Card, CardContent } from '@mui/material';  // Add this import
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Button, Grid, Checkbox, Typography, Card, CardContent } from '@mui/material';
 
 const TaskTrackerPage = () => {
-  const [tasks, setTasks] = useState([
-    { name: 'Setup Venue', completed: false },
-    { name: 'Invite Guests', completed: false },
-  ]);
+  const [tasks, setTasks] = useState([]);
+  const eventId = 1; // Replace with the event ID dynamically if needed
 
-  const toggleTaskStatus = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].completed = !updatedTasks[index].completed;
-    setTasks(updatedTasks);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = () => {
+    axios.get(`http://127.0.0.1:5000/tasks/${eventId}`) // Adjust eventId dynamically
+      .then(response => setTasks(response.data))
+      .catch(error => console.error('Error fetching tasks:', error));
+  };
+
+  const toggleTaskStatus = (taskId, currentStatus) => {
+    axios.put(`http://127.0.0.1:5000/tasks/${taskId}`, { status: !currentStatus })
+      .then(() => fetchTasks())
+      .catch(error => console.error('Error updating task status:', error));
   };
 
   return (
     <div>
-      <Button variant="contained" color="primary">
-        Add Task
-      </Button>
+      <Typography variant="h4" gutterBottom>
+        Task Tracker
+      </Typography>
       <Grid container spacing={2} sx={{ padding: 2 }}>
-        {tasks.map((task, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+        {tasks.map((task) => (
+          <Grid item xs={12} sm={6} md={4} key={task.id}>
             <Card>
               <CardContent>
                 <Checkbox
-                  checked={task.completed}
-                  onChange={() => toggleTaskStatus(index)}
+                  checked={task.status}
+                  onChange={() => toggleTaskStatus(task.id, task.status)}
                   color="primary"
                 />
                 <Typography variant="body2">{task.name}</Typography>
